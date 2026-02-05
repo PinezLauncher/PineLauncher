@@ -14,6 +14,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.ContentScale
 
 class MainActivity : ComponentActivity() {
 
@@ -21,7 +25,23 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MojangAppList()
+            Box(modifier = Modifier.fillMaxSize()) {
+
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {}
+
+                Image(
+                    painter = painterResource(id = R.drawable.bg_overlay),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.TopStart),
+                    alpha = 1.0f
+                )
+
+                MojangAppList()
+            }
         }
     }
 }
