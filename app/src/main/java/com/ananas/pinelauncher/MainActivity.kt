@@ -1,0 +1,60 @@
+package com.ananas.pinelauncher
+
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+
+class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContent {
+            MojangAppList()
+        }
+    }
+}
+
+@Composable
+fun MojangAppList() {
+
+    val context = LocalContext.current
+    val pm = context.packageManager
+
+    val apps = remember {
+        pm.getInstalledApplications(PackageManager.GET_META_DATA)
+            .filter { it.packageName.startsWith("com.mojang") }
+    }
+
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(apps) { app ->
+            val appName = pm.getApplicationLabel(app).toString()
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .clickable {
+                        val intent = pm.getLaunchIntentForPackage(app.packageName)
+                        intent?.let { context.startActivity(it) }
+                    }
+            ) {
+                Text(
+                    text = appName,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+        }
+    }
+}
