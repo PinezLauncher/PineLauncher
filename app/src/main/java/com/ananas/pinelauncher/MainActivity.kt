@@ -1,6 +1,5 @@
 package com.ananas.pinelauncher
 
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,14 +16,35 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.material3.Typography
 
+
+val PineFont = FontFamily(
+    Font(R.font.pine_font, FontWeight.Normal)
+)
+val AppTypography = Typography(
+    bodyLarge = TextStyle(
+        fontFamily = PineFont
+    ),
+    titleLarge = TextStyle(
+        fontFamily = PineFont
+    )
+)
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
+            MaterialTheme(
+                typography = AppTypography
+            ) {
+                MojangAppList()
+            }
             Box(modifier = Modifier.fillMaxSize()) {
 
                 Surface(
