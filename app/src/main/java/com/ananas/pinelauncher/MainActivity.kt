@@ -20,6 +20,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Alignment
 import com.ananas.pinelauncher.ui.theme.AppTypography
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CardDefaults
 
 class MainActivity : ComponentActivity() {
 
@@ -92,18 +95,39 @@ fun MojangAppList() {
                     .clickable {
                         val intent = pm.getLaunchIntentForPackage(app.packageName)
                         intent?.let { context.startActivity(it) }
-                    }
+                    },
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White.copy(alpha = 0.07f)
+                ),
+                border = BorderStroke(
+                    1.dp,
+                    Color.White.copy(alpha = 0.2f)
+                )
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+
                     Image(
                         painter = painterResource(R.drawable.icon),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(top = 0.dp, bottom = 6.dp)
                             .size(48.dp)
+                            .padding(bottom = 8.dp)
                     )
-                    Text(text = appName)
-                    Text(text = "Версия: $versionName")
+
+                    Text(
+                        text = appName,
+                        color = Color.White
+                    )
+
+                    Text(
+                        text = "Версия: $versionName",
+                        color = Color.White.copy(alpha = 0.6f)
+                    )
                 }
             }
         }
