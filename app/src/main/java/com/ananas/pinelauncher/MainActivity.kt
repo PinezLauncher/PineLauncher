@@ -18,11 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.material3.Typography
 import com.ananas.pinelauncher.ui.theme.AppTypography
 import androidx.compose.ui.graphics.Color
 
@@ -69,37 +64,46 @@ fun MojangAppList() {
             .filter { it.packageName.startsWith("com.mojang") }
     }
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(0.dp)
+    ) {
+
+        item {
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(top = 36.dp, bottom = 6.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            )
+        }
+
         items(apps) { app ->
-
             val appName = pm.getApplicationLabel(app).toString()
-
             val packageInfo = pm.getPackageInfo(app.packageName, 0)
             val versionName = packageInfo.versionName ?: "Неизвестно"
-            val versionCode = packageInfo.longVersionCode
 
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(horizontal = 16.dp, vertical = 6.dp)
                     .clickable {
                         val intent = pm.getLaunchIntentForPackage(app.packageName)
                         intent?.let { context.startActivity(it) }
                     }
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-
-                    Text(
-                        text = appName,
-                        style = MaterialTheme.typography.titleMedium
+                    Image(
+                        painter = painterResource(R.drawable.icon),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(top = 0.dp, bottom = 6.dp)
+                            .size(48.dp)
                     )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "Версия: $versionName ($versionCode)",
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    Text(text = appName)
+                    Text(text = "Версия: $versionName")
                 }
             }
         }
