@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,12 +22,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.FilterQuality
+import com.ananas.pinelauncher.ui.theme.PineLauncherTheme
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 
 class MainActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        val controller = WindowInsetsControllerCompat(window, window.decorView)
+
+        controller.hide(
+            WindowInsetsCompat.Type.systemBars()
+        )
+
+        controller.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
 
         setContent {
             MaterialTheme(
@@ -51,8 +71,145 @@ class MainActivity : ComponentActivity() {
                     MojangAppList()
                 }
             }
+
+
+                var showSettings by remember { mutableStateOf(false) }
+
+                PineLauncherTheme {
+
+                    if (showSettings) {
+                        SettingsScreen(
+                            onBack = { showSettings = false }
+                        )
+                    } else {
+                        MainScreen(
+                            onOpenSettings = { showSettings = true }
+                        )
+                    }
+                }
+
         }
     }
+}
+@Composable
+fun GlassIconButton(
+    indexX: Int,
+    indexY: Int,
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White.copy(alpha = 0.07f)
+        ),
+        border = BorderStroke(
+            1.dp,
+            Color.White.copy(alpha = 0.2f)
+        ),
+        modifier = Modifier.size(56.dp)
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            SpriteIcon(
+                spriteRes = R.drawable.icons,
+                indexX = indexX,
+                indexY = indexY,
+                modifier = Modifier.size(26.dp)
+            )
+        }
+    }
+}
+@Composable
+fun SettingsScreen(
+    onBack: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
+
+        Text(
+            text = "Настройки",
+            color = Color.White,
+            modifier = Modifier.align(Alignment.Center)
+        )
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+        ) {
+            GlassIconButton(
+                indexX = 1,
+                indexY = 3,
+                onClick = onBack
+            )
+        }
+    }
+}
+@Composable
+fun MainScreen(
+    onOpenSettings: () -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.TopCenter)
+                .padding(top = 16.dp)
+        ) {
+
+            Image(
+                painter = painterResource(R.drawable.logo),
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .fillMaxWidth()
+            )
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 4.dp)
+            ) {
+                GlassIconButton(
+                    indexX = 2,
+                    indexY = 1,
+                    onClick = onOpenSettings
+                )
+            }
+        }
+    }
+}
+@Composable
+fun SpriteIcon(
+    spriteRes: Int,
+    indexX: Int,
+    indexY: Int,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val bitmap = BitmapFactory.decodeResource(context.resources, spriteRes)
+
+    val icon = Bitmap.createBitmap(
+        bitmap,
+        indexX * 9,
+        indexY * 9,
+        9,
+        9
+    )
+
+    Image(
+        bitmap = icon.asImageBitmap(),
+        contentDescription = null,
+        modifier = modifier,
+        filterQuality = FilterQuality.None
+    )
 }
 
 @RequiresApi(Build.VERSION_CODES.P)
@@ -71,10 +228,9 @@ fun MojangAppList() {
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(0.dp)
     ) {
-
         item {
             Image(
-                painter = painterResource(id = R.drawable.logo),
+                painter = painterResource(id = R.drawable.logo1),
                 contentDescription = null,
                 modifier = Modifier
                     .padding(top = 36.dp, bottom = 6.dp)
@@ -91,11 +247,7 @@ fun MojangAppList() {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp)
-                    .clickable {
-                        val intent = pm.getLaunchIntentForPackage(app.packageName)
-                        intent?.let { context.startActivity(it) }
-                    },
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
                 shape = RoundedCornerShape(28.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White.copy(alpha = 0.07f)
@@ -105,29 +257,50 @@ fun MojangAppList() {
                     Color.White.copy(alpha = 0.2f)
                 )
             ) {
-                Column(
+
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    Image(
-                        painter = painterResource(R.drawable.icon),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .padding(bottom = 8.dp)
-                    )
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
 
-                    Text(
-                        text = appName,
-                        color = Color.White
-                    )
+                        Image(
+                            painter = painterResource(R.drawable.icon),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .padding(bottom = 8.dp)
+                        )
 
-                    Text(
-                        text = "Версия: $versionName",
-                        color = Color.White.copy(alpha = 0.6f)
-                    )
+                        Text(
+                            text = appName,
+                            color = Color.White
+                        )
+
+                        Text(
+                            text = "Версия: $versionName",
+                            color = Color.White.copy(alpha = 0.6f)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = {
+                            val intent = pm.getLaunchIntentForPackage(app.packageName)
+                            intent?.let { context.startActivity(it) }
+                        }
+                    ) {
+                        SpriteIcon(
+                            spriteRes = R.drawable.icons,
+                            indexX = 3,
+                            indexY = 3,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
                 }
             }
         }
