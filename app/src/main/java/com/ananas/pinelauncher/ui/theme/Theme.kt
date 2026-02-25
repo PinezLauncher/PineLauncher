@@ -15,15 +15,30 @@ import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
     background = Color.Black,
-    surface = Color(0xFF121212)
+    surface = Color.Black
 )
-
+private val LightColorScheme = darkColorScheme(
+    background = Color.Black,
+    surface = Color.Black
+)
 @Composable
 fun PineLauncherTheme(
     content: @Composable () -> Unit
 ) {
     MaterialTheme(
         colorScheme = DarkColorScheme,
+        typography = AppTypography,
+        content = content
+    )
+}
+@Composable
+fun PineLauncherTheme(
+    darkTheme: Unit,
+    content: @Composable () -> Unit
+) {
+
+
+    MaterialTheme(
         typography = AppTypography,
         content = content
     )
