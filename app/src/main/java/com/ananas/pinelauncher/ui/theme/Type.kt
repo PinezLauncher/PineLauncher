@@ -8,31 +8,85 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.ananas.pinelauncher.R
 
-// Подключаем твой шрифт
+// Custom Minecraft-themed Launcher Font
 val PineFont = FontFamily(
-    Font(R.font.pine_font, FontWeight.Normal)
+    Font(R.font.pine_font)
 )
 
-// Переопределяем ВСЮ типографику
-val AppTypography = Typography().copy(
+// Set of Material typography styles to start with
+val Typography =
+  Typography(
+    bodyLarge =
+      TextStyle(
+        fontFamily = PineFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp,
+      ),
+    bodyMedium =
+      TextStyle(
+        fontFamily = PineFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.25.sp,
+      ),
+    bodySmall =
+      TextStyle(
+        fontFamily = PineFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.4.sp,
+      ),
+    titleLarge =
+      TextStyle(
+        fontFamily = PineFont,
+        fontWeight = FontWeight.Bold,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp
+      ),
+    titleMedium =
+      TextStyle(
+        fontFamily = PineFont,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.15.sp
+      ),
+    titleSmall =
+      TextStyle(
+        fontFamily = PineFont,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.1.sp
+      ),
+    labelLarge =
+      TextStyle(
+        fontFamily = PineFont,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.1.sp
+      ),
+    labelMedium =
+      TextStyle(
+        fontFamily = PineFont,
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
+      ),
+    labelSmall =
+      TextStyle(
+        fontFamily = PineFont,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
+      )
+  )
 
-    displayLarge = Typography().displayLarge.copy(fontFamily = PineFont),
-    displayMedium = Typography().displayMedium.copy(fontFamily = PineFont),
-    displaySmall = Typography().displaySmall.copy(fontFamily = PineFont),
-
-    headlineLarge = Typography().headlineLarge.copy(fontFamily = PineFont),
-    headlineMedium = Typography().headlineMedium.copy(fontFamily = PineFont),
-    headlineSmall = Typography().headlineSmall.copy(fontFamily = PineFont),
-
-    titleLarge = Typography().titleLarge.copy(fontFamily = PineFont),
-    titleMedium = Typography().titleMedium.copy(fontFamily = PineFont),
-    titleSmall = Typography().titleSmall.copy(fontFamily = PineFont),
-
-    bodyLarge = Typography().bodyLarge.copy(fontFamily = PineFont),
-    bodyMedium = Typography().bodyMedium.copy(fontFamily = PineFont),
-    bodySmall = Typography().bodySmall.copy(fontFamily = PineFont),
-
-    labelLarge = Typography().labelLarge.copy(fontFamily = PineFont),
-    labelMedium = Typography().labelMedium.copy(fontFamily = PineFont),
-    labelSmall = Typography().labelSmall.copy(fontFamily = PineFont),
-)
