@@ -43,7 +43,6 @@ import androidx.core.content.ContextCompat
 import org.json.JSONObject
 import java.net.URL
 import java.net.HttpURLConnection
-import android.util.Log.e
 import com.ananas.pinelauncher.ui.theme.PineLauncherTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
