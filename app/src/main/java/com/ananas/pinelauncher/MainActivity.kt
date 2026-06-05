@@ -46,7 +46,7 @@ import java.net.HttpURLConnection
 import com.ananas.pinelauncher.ui.theme.PineLauncherTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
+import androidx.compose.ui.layout.ContentScale
 class MainActivity : ComponentActivity() {
 
     private val importedFileUri = mutableStateOf<Uri?>(null)
@@ -251,60 +251,7 @@ class MainActivity : ComponentActivity() {
                     color = if (lightTheme) Color.White else Color.Black
                 ) {
 
-                    if (showUpdateDialog) {
 
-                        Dialog(onDismissRequest = { showUpdateDialog = false }) {
-
-                            Card(
-                                shape = RoundedCornerShape(24.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = Color(0xFF232323)
-                                )
-                            ) {
-
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier.padding(20.dp)
-                                ) {
-
-                                    val context = LocalContext.current
-                                    val updateBitmap = remember {
-                                        BitmapFactory.decodeResource(context.resources, R.drawable.update).asImageBitmap()
-                                    }
-
-                                    Image(
-                                        bitmap = updateBitmap,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(180.dp),
-                                        filterQuality = FilterQuality.None
-                                    )
-
-
-                                    Spacer(modifier = Modifier.height(12.dp))
-
-                                    Text(
-                                        text = "Доступно обновление",
-                                        color = Color.White
-                                    )
-
-                                    Spacer(modifier = Modifier.height(12.dp))
-
-
-                                    Button(
-                                        onClick = {},
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color(0xFF00E997),
-                                            contentColor = Color(0xFF232323)
-                                        ),
-                                        shape = RoundedCornerShape(20.dp)
-                                    ) {
-                                        Text(text = "Скачать")
-                                    }
-
-                                }
-                            }
-                        }
-                    }
 
                     if (isPreparingFile.value) {
                         Dialog(onDismissRequest = {}) {
@@ -349,6 +296,10 @@ class MainActivity : ComponentActivity() {
                     if (importedFileUri.value != null) {
                         val fileUri = importedFileUri.value!!
                         val fileName = getFileName(context, fileUri)
+                        val context = LocalContext.current
+                        val bgBitmap = remember {
+                            BitmapFactory.decodeResource(context.resources, R.drawable.bg_file).asImageBitmap()
+                        }
 
                         Dialog(onDismissRequest = { importedFileUri.value = null }) {
                             Card(
@@ -358,165 +309,205 @@ class MainActivity : ComponentActivity() {
                                 ),
                                 border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
                             ) {
-                                Column(
-                                    modifier = Modifier
-                                        .padding(24.dp)
-                                        .fillMaxWidth(),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(
-                                        text = "Открыть файл",
-                                        style = MaterialTheme.typography.titleLarge,
-                                        color = Color.White
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(
-                                        text = fileName,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = Color(0xFF00E997),
-                                        modifier = Modifier.padding(bottom = 16.dp),
-                                        maxLines = 2
+                                Box {
+                                    // 1. ФОН (как мы делали ранее)
+                                    Image(
+                                        bitmap = bgBitmap, // Если bgBitmap не определен здесь, передайте его
+                                        contentDescription = null,
+                                        modifier = Modifier.matchParentSize(), // Заполняет всю карточку
+                                        contentScale = ContentScale.Crop
                                     )
 
-                                    val pm = context.packageManager
-                                    val mojangApps = remember {
-                                        pm.getInstalledApplications(PackageManager.GET_META_DATA)
-                                            .filter { it.packageName.startsWith("com.mojang") }
-                                    }
+                                    // Затемнение (чтобы белый текст был читабельным)
+                                    Box(
+                                        modifier = Modifier.matchParentSize()
+                                            .background(Color.Black.copy(alpha = 0.7f))
+                                    )
 
-                                    if (mojangApps.isEmpty()) {
+                                    Column(
+                                        modifier = Modifier
+                                            .padding(24.dp)
+                                            .fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
                                         Text(
-                                            text = "Майнкрафт не установлен",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = Color.Red,
-                                            modifier = Modifier.padding(bottom = 16.dp)
+                                            text = "Открыть файл",
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = Color.White
                                         )
-                                    } else {
-                                        LazyColumn(
-                                            modifier = Modifier
-                                                .heightIn(max = 240.dp)
-                                                .padding(bottom = 16.dp)
-                                        ) {
-                                            items(mojangApps) { app ->
-                                                val appName = pm.getApplicationLabel(app).toString()
-                                                val versionName = try {
-                                                    pm.getPackageInfo(app.packageName, 0).versionName ?: "?"
-                                                } catch (e: Exception) {
-                                                    "?"
-                                                }
-                                                val appIconBitmap = remember(app.packageName) {
-                                                    try {
-                                                        val drawable = pm.getApplicationIcon(app)
-                                                        drawableToBitmap(drawable).asImageBitmap()
-                                                    } catch (e: Exception) {
-                                                        null
-                                                     }
-                                                }
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = fileName,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = Color(0xFF00E997),
+                                            modifier = Modifier.padding(bottom = 16.dp),
+                                            maxLines = 2
+                                        )
 
-                                                Card(
-                                                    onClick = {
+                                        val pm = context.packageManager
+                                        val mojangApps = remember {
+                                            pm.getInstalledApplications(PackageManager.GET_META_DATA)
+                                                .filter { it.packageName.startsWith("com.mojang") }
+                                        }
+
+                                        if (mojangApps.isEmpty()) {
+                                            Text(
+                                                text = "Майнкрафт не установлен",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = Color.Red,
+                                                modifier = Modifier.padding(bottom = 16.dp)
+                                            )
+                                        } else {
+                                            LazyColumn(
+                                                modifier = Modifier
+                                                    .heightIn(max = 240.dp)
+                                                    .padding(bottom = 16.dp)
+                                            ) {
+                                                items(mojangApps) { app ->
+                                                    val appName =
+                                                        pm.getApplicationLabel(app).toString()
+                                                    val versionName = try {
+                                                        pm.getPackageInfo(
+                                                            app.packageName,
+                                                            0
+                                                        ).versionName ?: "?"
+                                                    } catch (e: Exception) {
+                                                        "?"
+                                                    }
+                                                    val appIconBitmap = remember(app.packageName) {
                                                         try {
-                                                            context.grantUriPermission(
-                                                                app.packageName,
-                                                                fileUri,
-                                                                Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                                            )
-                                                            val launchIntent = Intent(Intent.ACTION_VIEW).apply {
-                                                                setDataAndType(fileUri, "application/octet-stream")
-                                                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                                setPackage(app.packageName)
-                                                            }
-                                                            context.startActivity(launchIntent)
+                                                            val drawable =
+                                                                pm.getApplicationIcon(app)
+                                                            drawableToBitmap(drawable).asImageBitmap()
                                                         } catch (e: Exception) {
-                                                            e.printStackTrace()
+                                                            null
+                                                        }
+                                                    }
+
+                                                    Card(
+                                                        onClick = {
                                                             try {
-                                                                val launchIntent = Intent(Intent.ACTION_VIEW).apply {
-                                                                    setDataAndType(fileUri, "*/*")
-                                                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                                    setPackage(app.packageName)
-                                                                }
-                                                                context.startActivity(launchIntent)
-                                                            } catch (e2: Exception) {
-                                                                e2.printStackTrace()
-                                                                try {
-                                                                    val launchIntent = Intent(Intent.ACTION_VIEW).apply {
-                                                                        setData(fileUri)
+                                                                context.grantUriPermission(
+                                                                    app.packageName,
+                                                                    fileUri,
+                                                                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                                                )
+                                                                val launchIntent =
+                                                                    Intent(Intent.ACTION_VIEW).apply {
+                                                                        setDataAndType(
+                                                                            fileUri,
+                                                                            "application/octet-stream"
+                                                                        )
                                                                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                                                                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                                                         setPackage(app.packageName)
                                                                     }
-                                                                    context.startActivity(launchIntent)
-                                                                } catch (ex: Exception) {
-                                                                    ex.printStackTrace()
-                                                                    android.widget.Toast.makeText(
-                                                                        context,
-                                                                        "Не удалось запустить: ${ex.localizedMessage}",
-                                                                        android.widget.Toast.LENGTH_LONG
-                                                                    ).show()
+                                                                context.startActivity(launchIntent)
+                                                            } catch (e: Exception) {
+                                                                e.printStackTrace()
+                                                                try {
+                                                                    val launchIntent =
+                                                                        Intent(Intent.ACTION_VIEW).apply {
+                                                                            setDataAndType(
+                                                                                fileUri,
+                                                                                "*/*"
+                                                                            )
+                                                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                                            setPackage(app.packageName)
+                                                                        }
+                                                                    context.startActivity(
+                                                                        launchIntent
+                                                                    )
+                                                                } catch (e2: Exception) {
+                                                                    e2.printStackTrace()
+                                                                    try {
+                                                                        val launchIntent =
+                                                                            Intent(Intent.ACTION_VIEW).apply {
+                                                                                setData(fileUri)
+                                                                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                                                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                                                setPackage(app.packageName)
+                                                                            }
+                                                                        context.startActivity(
+                                                                            launchIntent
+                                                                        )
+                                                                    } catch (ex: Exception) {
+                                                                        ex.printStackTrace()
+                                                                        android.widget.Toast.makeText(
+                                                                            context,
+                                                                            "Не удалось запустить: ${ex.localizedMessage}",
+                                                                            android.widget.Toast.LENGTH_LONG
+                                                                        ).show()
+                                                                    }
                                                                 }
                                                             }
-                                                        }
-                                                        importedFileUri.value = null
-                                                    },
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .padding(vertical = 4.dp),
-                                                    shape = RoundedCornerShape(16.dp),
-                                                    colors = CardDefaults.cardColors(
-                                                        containerColor = Color.White.copy(alpha = 0.07f)
-                                                    ),
-                                                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
-                                                ) {
-                                                    Row(
+                                                            importedFileUri.value = null
+                                                        },
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .padding(12.dp),
-                                                        verticalAlignment = Alignment.CenterVertically
+                                                            .padding(vertical = 4.dp),
+                                                        shape = RoundedCornerShape(16.dp),
+                                                        colors = CardDefaults.cardColors(
+                                                            containerColor = Color.White.copy(alpha = 0.07f)
+                                                        ),
+                                                        border = BorderStroke(
+                                                            1.dp,
+                                                            Color.White.copy(alpha = 0.1f)
+                                                        )
                                                     ) {
-                                                        if (appIconBitmap != null) {
-                                                            Image(
-                                                                bitmap = appIconBitmap,
-                                                                contentDescription = null,
-                                                                modifier = Modifier.size(36.dp)
-                                                            )
-                                                        } else {
-                                                            Image(
-                                                                painter = painterResource(R.drawable.icon),
-                                                                contentDescription = null,
-                                                                modifier = Modifier.size(36.dp)
-                                                            )
-                                                        }
-                                                        Spacer(modifier = Modifier.width(12.dp))
-                                                        Column {
-                                                            Text(
-                                                                text = appName,
-                                                                color = Color.White,
-                                                                style = MaterialTheme.typography.bodyMedium
-                                                            )
-                                                            Text(
-                                                                text = "Версия: $versionName",
-                                                                color = Color.White.copy(alpha = 0.6f),
-                                                                style = MaterialTheme.typography.bodySmall
-                                                            )
+                                                        Row(
+                                                            modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .padding(12.dp),
+                                                            verticalAlignment = Alignment.CenterVertically
+                                                        ) {
+                                                            if (appIconBitmap != null) {
+                                                                Image(
+                                                                    bitmap = appIconBitmap,
+                                                                    contentDescription = null,
+                                                                    modifier = Modifier.size(36.dp)
+                                                                )
+                                                            } else {
+                                                                Image(
+                                                                    painter = painterResource(R.drawable.icon),
+                                                                    contentDescription = null,
+                                                                    modifier = Modifier.size(36.dp)
+                                                                )
+                                                            }
+                                                            Spacer(modifier = Modifier.width(12.dp))
+                                                            Column {
+                                                                Text(
+                                                                    text = appName,
+                                                                    color = Color.White,
+                                                                    style = MaterialTheme.typography.bodyMedium
+                                                                )
+                                                                Text(
+                                                                    text = "Версия: $versionName",
+                                                                    color = Color.White.copy(alpha = 0.6f),
+                                                                    style = MaterialTheme.typography.bodySmall
+                                                                )
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
 
-                                    Button(
-                                        onClick = { importedFileUri.value = null },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color(0xFF232323),
-                                            contentColor = Color.White
-                                        ),
-                                        shape = RoundedCornerShape(20.dp),
-                                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f))
-                                    ) {
-                                        Text(text = "Закрыть")
+                                        Button(
+                                            onClick = { importedFileUri.value = null },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color(0xFF232323),
+                                                contentColor = Color.White
+                                            ),
+                                            shape = RoundedCornerShape(20.dp),
+                                            border = BorderStroke(
+                                                1.dp,
+                                                Color.White.copy(alpha = 0.2f)
+                                            )
+                                        ) {
+                                            Text(text = "Закрыть")
+                                        }
                                     }
                                 }
                             }
@@ -548,6 +539,17 @@ class MainActivity : ComponentActivity() {
                             onOpenSettings = { showSettings = true },
                             onSelectFile = {
                                 filePickerLauncher.launch(arrayOf("*/*"))
+                            },
+                            hasUpdate = showUpdateDialog,
+                            apkUrl = apkUrl,
+                            onDownloadUpdate = { url ->
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    android.widget.Toast.makeText(context, "Не удалось открыть браузер", android.widget.Toast.LENGTH_SHORT).show()
+                                }
                             }
                         )
                     }
@@ -631,7 +633,7 @@ class MainActivity : ComponentActivity() {
 
             val version = obj.getString("tag_name")
 
-            val apkUrl = "https://github.com/PinezLauncher/PineLauncher/releases/latest/download/app-debug.apk"
+            val apkUrl = "https://github.com/PinezLauncher/PineLauncher/releases/latest/"
 
             Pair(version, apkUrl)
 
@@ -727,17 +729,39 @@ class MainActivity : ComponentActivity() {
         onToggleTheme: () -> Unit,
         onToggleHideIcons: () -> Unit,
         onBack: () -> Unit
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-                .padding(16.dp)
-        ) {
+    ) {val context = LocalContext.current
+        val bgBitmap = remember {
+            BitmapFactory.decodeResource(context.resources, R.drawable.bg_settings).asImageBitmap()
+        }
 
+        Box(
+            modifier = Modifier.fillMaxSize() // Модификатор для самого контейнера Box
+        ) {
+            Image(
+                bitmap = bgBitmap,
+                contentDescription = null,
+                // Занимает всю ширину, высота подстраивается автоматически
+                modifier = Modifier.fillMaxWidth(),
+                // Растягивает по ширине, сохраняя пропорции
+                contentScale = ContentScale.FillWidth,
+                // Прижимает к верхнему краю
+                alignment = Alignment.TopStart
+            )
+            Box(
+                modifier = Modifier
+                    .padding(16.dp) // Вот здесь задаются отступы для кнопки
+                    .align(Alignment.TopStart) // Прижимаем к углу
+            ) {
+                GlassIconButton(
+                    indexX = 1,
+                    indexY = 3,
+                    onClick = onBack
+                )
+            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(16.dp)
                     .align(Alignment.Center)
             ) {
 
@@ -757,17 +781,6 @@ class MainActivity : ComponentActivity() {
                     title = "<>±;?@/",
                     checked = hideIcons,
                     onToggle = onToggleHideIcons
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-            ) {
-                GlassIconButton(
-                    indexX = 1,
-                    indexY = 3,
-                    onClick = onBack
                 )
             }
         }
@@ -806,7 +819,10 @@ class MainActivity : ComponentActivity() {
     fun MainScreen(
         sortByVersion: Boolean,
         onOpenSettings: () -> Unit,
-        onSelectFile: () -> Unit
+        onSelectFile: () -> Unit,
+        hasUpdate: Boolean,
+        apkUrl: String,
+        onDownloadUpdate: (String) -> Unit
     ) {
         val context = LocalContext.current
         val bgBitmap = remember {
@@ -823,8 +839,12 @@ class MainActivity : ComponentActivity() {
                 filterQuality = FilterQuality.High
             )
 
-            MojangAppList(sortByVersion)
-
+            MojangAppList(
+                sortByVersion = sortByVersion,
+                hasUpdate = hasUpdate,
+                apkUrl = apkUrl,
+                onDownloadUpdate = onDownloadUpdate
+            )
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -937,7 +957,10 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.P)
     @Composable
     fun MojangAppList(
-        sortByVersion: Boolean
+        sortByVersion: Boolean,
+        hasUpdate: Boolean,
+        apkUrl: String,
+        onDownloadUpdate: (String) -> Unit
     ) {
         val context = LocalContext.current
         val pm = context.packageManager
@@ -972,6 +995,67 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(top = 110.dp)
         ) {
+            if (hasUpdate) {
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        shape = RoundedCornerShape(28.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White.copy(alpha = 0.07f) // Стиль главного меню
+                        ),
+                        border = BorderStroke(
+                            1.dp,
+                            Color.White.copy(alpha = 0.2f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val updateBitmap = remember {
+                                BitmapFactory.decodeResource(context.resources, R.drawable.update).asImageBitmap()
+                            }
+                            Image(
+                                bitmap = updateBitmap,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                filterQuality = FilterQuality.None
+                            )
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Доступно обновление",
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Button(
+                                onClick = { onDownloadUpdate(apkUrl) },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF00E997),
+                                    contentColor = Color(0xFF232323)
+                                ),
+                                shape = RoundedCornerShape(16.dp),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
+                            ) {
+                                Text(
+                                    text = "@  Скачать",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
+                }
+            }
             items(sortedApps) { app ->
 
                 val appName = pm.getApplicationLabel(app).toString()
